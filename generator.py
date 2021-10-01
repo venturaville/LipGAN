@@ -1,3 +1,6 @@
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+
 from keras.models import load_model
 import numpy as np
 from keras.optimizers import Adam
@@ -13,26 +16,33 @@ import cv2
 import os
 import librosa
 import scipy
+
+
 from keras.utils import plot_model
-import tensorflow as tf
-from keras.utils import multi_gpu_model
+
+#from keras.utils import multi_gpu_model
 from discriminator import contrastive_loss
 
-class ModelMGPU(Model):
-    def __init__(self, ser_model, gpus):
-        pmodel = multi_gpu_model(ser_model, gpus)
-        self.__dict__.update(pmodel.__dict__)
-        self._smodel = ser_model
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(
+    physical_devices[0], True
+)
 
-    def __getattribute__(self, attrname):
-        '''Override load and save methods to be used from the serial-model. The
-        serial-model holds references to the weights in the multi-gpu model.
-        '''
-        # return Model.__getattribute__(self, attrname)
-        if 'load' in attrname or 'save' in attrname:
-            return getattr(self._smodel, attrname)
-
-        return super(ModelMGPU, self).__getattribute__(attrname)
+#class ModelMGPU(Model):
+#    def __init__(self, ser_model, gpus):
+#        pmodel = multi_gpu_model(ser_model, gpus)
+#        self.__dict__.update(pmodel.__dict__)
+#        self._smodel = ser_model
+#
+#    def __getattribute__(self, attrname):
+#        '''Override load and save methods to be used from the serial-model. The
+#        serial-model holds references to the weights in the multi-gpu model.
+#        '''
+#        # return Model.__getattribute__(self, attrname)
+#        if 'load' in attrname or 'save' in attrname:
+#            return getattr(self._smodel, attrname)
+#
+#        return super(ModelMGPU, self).__getattribute__(attrname)
 
 def conv_block(x, num_filters, kernel_size=3, strides=1, padding='same', act=True):
 	x = Conv2D(filters=num_filters, kernel_size= kernel_size, 
@@ -115,8 +125,8 @@ def create_model(args, mel_step_size):
 	model = Model(inputs=[input_face, input_audio], outputs=prediction)
 	model.summary()		
 	
-	if args.n_gpu > 1:
-		model = ModelMGPU(model , args.n_gpu)
+#	if args.n_gpu > 1:
+#		model = ModelMGPU(model , args.n_gpu)
 		
 	model.compile(loss='mae', optimizer=(Adam(lr=args.lr) if hasattr(args, 'lr') else 'adam')) 
 	
@@ -217,8 +227,8 @@ def create_model_residual(args, mel_step_size):
 	model = Model(inputs=[input_face, input_audio], outputs=prediction)
 	model.summary()		
 	
-	if args.n_gpu > 1:
-		model = ModelMGPU(model , args.n_gpu)
+#	if args.n_gpu > 1:
+#		model = ModelMGPU(model , args.n_gpu)
 		
 	model.compile(loss='mae', optimizer=(Adam(lr=args.lr) if hasattr(args, 'lr') else 'adam')) 
 	
@@ -233,8 +243,8 @@ def create_combined_model(generator, discriminator, args, mel_step_size):
 	d = discriminator([fake_face, input_audio])
 
 	model = Model([input_face, input_audio], [fake_face, d])
-	if args.n_gpu > 1:
-		model = ModelMGPU(model , args.n_gpu)
+#	if args.n_gpu > 1:
+#		model = ModelMGPU(model , args.n_gpu)
 
 	model.compile(loss=['mae', contrastive_loss], 
 					optimizer=(Adam(lr=args.lr) if hasattr(args, 'lr') else 'adam'), 

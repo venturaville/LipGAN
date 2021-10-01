@@ -15,25 +15,30 @@ import librosa
 import scipy
 from keras.utils import plot_model
 import tensorflow as tf
-from keras.utils import multi_gpu_model
+#from keras.utils import multi_gpu_model
 import tensorflow as tf
 from keras import backend as K
 
-class ModelMGPU(Model):
-    def __init__(self, ser_model, gpus):
-        pmodel = multi_gpu_model(ser_model, gpus)
-        self.__dict__.update(pmodel.__dict__)
-        self._smodel = ser_model
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(
+    physical_devices[0], True
+)
 
-    def __getattribute__(self, attrname):
-        '''Override load and save methods to be used from the serial-model. The
-        serial-model holds references to the weights in the multi-gpu model.
-        '''
-        # return Model.__getattribute__(self, attrname)
-        if 'load' in attrname or 'save' in attrname:
-            return getattr(self._smodel, attrname)
-
-        return super(ModelMGPU, self).__getattribute__(attrname)
+#class ModelMGPU(Model):
+#    def __init__(self, ser_model, gpus):
+#        pmodel = multi_gpu_model(ser_model, gpus)
+#        self.__dict__.update(pmodel.__dict__)
+#        self._smodel = ser_model
+#
+#    def __getattribute__(self, attrname):
+#        '''Override load and save methods to be used from the serial-model. The
+#        serial-model holds references to the weights in the multi-gpu model.
+#        '''
+#        # return Model.__getattribute__(self, attrname)
+#        if 'load' in attrname or 'save' in attrname:
+#            return getattr(self._smodel, attrname)
+#
+#        return super(ModelMGPU, self).__getattribute__(attrname)
 
 def contrastive_loss(y_true, y_pred):
 	margin = 1.
@@ -83,8 +88,8 @@ def create_model(args, mel_step_size):
 
 	model.summary()
 
-	if args.n_gpu > 1:
-		model = ModelMGPU(model , args.n_gpu)
+#	if args.n_gpu > 1:
+#		model = ModelMGPU(model , args.n_gpu)
 		
 	model.compile(loss=contrastive_loss, optimizer=Adam(lr=args.lr)) 
 	

@@ -1,9 +1,10 @@
-from tensorflow.contrib.training import HParams
+#from tensorflow.contrib.training import HParams
 from glob import glob
 import os, pickle
+from attrdict import AttrDict
 
 # Default hyperparameters
-hparams = HParams(
+hparams = AttrDict(
 	num_mels=80,  # Number of mel-spectrogram channels and local conditioning dimensionality
 	#  network
 	rescale=True,  # Whether to rescale audio prior to preprocessing
@@ -20,11 +21,14 @@ hparams = HParams(
 	# Does not work if n_ffit is not multiple of hop_size!!
 	use_lws=False,
 	
-	n_fft=800,  # Extra window size is filled with 0 paddings to match this parameter
+	#n_fft=800,  # Extra window size is filled with 0 paddings to match this parameter
 	hop_size=200,  # For 16000Hz, 200 = 12.5 ms (0.0125 * sample_rate)
 	win_size=800,  # For 16000Hz, 800 = 50 ms (If None, win_size = n_fft) (0.05 * sample_rate)
-	sample_rate=16000,  # 16000Hz (corresponding to librispeech) (sox --i <filename>)
-	
+#	sample_rate=16000,  # 16000Hz (corresponding to librispeech) (sox --i <filename>)
+
+        n_fft=2048, # from waveglow
+        sample_rate=22050, # from waveglow
+
 	frame_shift_ms=None,  # Can replace hop_size parameter. (Recommended: 12.5)
 	
 	# Mel and Linear spectrograms normalization/scaling and clipping
