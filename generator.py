@@ -3,7 +3,6 @@ tf.disable_v2_behavior()
 
 from keras.models import load_model
 import numpy as np
-from keras.optimizers import Adam
 from keras.models import Model
 from keras.layers import Dense, Conv2DTranspose, Conv2D, BatchNormalization, \
 						Activation, Concatenate, Input, MaxPool2D,\
@@ -16,9 +15,9 @@ import cv2
 import os
 import librosa
 import scipy
+from tensorflow.keras.optimizers import Adam
+from keras.utils.vis_utils import plot_model
 
-
-from keras.utils import plot_model
 
 #from keras.utils import multi_gpu_model
 from discriminator import contrastive_loss

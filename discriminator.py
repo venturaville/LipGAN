@@ -1,6 +1,6 @@
 from keras.models import load_model
 import numpy as np
-from keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
 from keras.models import Model
 from keras.layers import Dense, Conv2D, Conv3D, BatchNormalization, Activation, \
 						Concatenate, AvgPool2D, Input, MaxPool2D, UpSampling2D, Add, \
@@ -13,7 +13,7 @@ import cv2
 import os
 import librosa
 import scipy
-from keras.utils import plot_model
+from keras.utils.vis_utils import plot_model
 import tensorflow as tf
 #from keras.utils import multi_gpu_model
 import tensorflow as tf
